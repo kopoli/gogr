@@ -7,8 +7,12 @@ import (
 )
 
 func RunCommand(directory string, program string, args ...string) (err error) {
+	// fmt.Println(directory)
+	// fmt.Println(program)
 	cmd := exec.Command(program, args...)
 	cmd.Dir = directory
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
 	err = cmd.Run()
 	if err != nil {

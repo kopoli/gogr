@@ -27,11 +27,12 @@ func main() {
 		cmd.Command("rm", "Remove tag from paths", nil)
 	})
 
+	optVerbose := app.BoolOpt("verbose V", false, "Print verbose output")
 	argArg := app.StringsArg("ARG", nil, "Directories and command to be run")
 
 	app.Action = func() {
-		// fmt.Println(*tgtArg)
-		fmt.Println(*argArg)
+		fmt.Println(*optVerbose)
+		// fmt.Println(*argArg)
 		dirs, rest, err := gogr.ParseDirectories(*argArg)
 		if err != nil {
 			fmt.Println(err)
@@ -41,7 +42,10 @@ func main() {
 		fmt.Println(rest)
 
 		for _, dir := range dirs {
-			gogr.RunCommand(dir, rest[0], rest[1:]...)
+			err = gogr.RunCommand(dir, rest[0], rest[1:]...)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 
