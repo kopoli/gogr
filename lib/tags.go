@@ -51,16 +51,19 @@ func deduplicate(strings []string) (ret []string) {
 	return
 }
 
-func (t *TagManager) Add(tag string, dirs []string) {
+func (t *TagManager) Add(tag string, dirs ...string) {
 	t.Tags[tag] = deduplicate(append(t.Tags[tag], dirs...))
 }
 
-func (t *TagManager) Remove(tag string, dirs []string) {
+// If dirs is empty, remove the whole tag, otherwise remove the given
+// directories from the tag
+func (t *TagManager) Remove(tag string, dirs ...string) {
 	if len(dirs) == 0 {
 		delete(t.Tags, tag)
+		return
 	}
 
-	ret := make([]string, 0)
+	var ret []string
 
 	for _, dir := range t.Tags[tag] {
 		remove := false
