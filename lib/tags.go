@@ -3,6 +3,8 @@ package gogr
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
 type TagManager struct {
@@ -13,8 +15,8 @@ type TagManager struct {
 type TagData struct {
 }
 
-func NewTagManager(file string) (ret TagManager) {
-	ret.ConfFile = file
+func NewTagManager(opts Options) (ret TagManager) {
+	ret.ConfFile = opts.Get("configuration-file", "config.json")
 	ret.Tags = make(map[string][]string)
 	ret.Load()
 
@@ -22,7 +24,11 @@ func NewTagManager(file string) (ret TagManager) {
 }
 
 func (t *TagManager) Save() (err error) {
-	b, err := json.MarshalIndent(t.Tags, " ", "    ")
+	b, err := json.MarshalIndent(t, " ", "    ")
+	if err != nil {
+		return
+	}
+	err = os.MkdirAll(filepath.Dir(t.ConfFile), 0755)
 	if err != nil {
 		return
 	}
@@ -36,7 +42,7 @@ func (t *TagManager) Load() (err error) {
 		return
 	}
 
-	err = json.Unmarshal(b, &t.Tags)
+	err = json.Unmarshal(b, &t)
 	return
 }
 
@@ -52,7 +58,7 @@ func deduplicate(strings []string) (ret []string) {
 }
 
 func (t *TagManager) Add(tag string, dirs ...string) {
-	t.Tags[tag] = deduplicate(append(t.Tags[tag], dirs...))
+	t.Tags[tag] = deduplicate(cleanup(append(t.Tags[tag], dirs...)))
 }
 
 // If dirs is empty, remove the whole tag, otherwise remove the given
@@ -80,6 +86,21 @@ func (t *TagManager) Remove(tag string, dirs ...string) {
 	t.Tags[tag] = ret
 }
 
-func (t *TagManager) Dirs(tag string) (dirs []string) {
-	return t.Tags[tag]
+func cleanup(dirs []string) (ret []string) {
+	for _, dir := range dirs {
+		dir, err := filepath.Abs(dir)
+		if err == nil && isDirectory(dir) {
+			ret = append(ret, filepath.Clean(dir))
+		}
+	}
+	return
+}
+
+func (t *TagManager) Dirs(tags []string, dirs []string) (ret []string) {
+	for _, tag := range tags {
+		ret = append(ret, t.Tags[tag]...)
+	}
+	ret = deduplicate(cleanup(append(ret, dirs...)))
+
+	return
 }
