@@ -18,12 +18,22 @@ var (
 	progVersion  = majorVersion + "-" + version
 )
 
-func fault(err error, message string, arg ...string) {
+func printErr(err error, message string, arg ...string) {
 	msg := ""
 	if err != nil {
 		msg = fmt.Sprintf(" (error: %s)", err)
 	}
 	fmt.Fprintf(os.Stderr, "Error: %s%s.%s\n", message, strings.Join(arg, " "), msg)
+}
+
+func fault(err error, message string, arg ...string) {
+	printErr(err, message, arg...)
+	cli.Exit(1)
+}
+
+func faultShowHelp(app *cli.Cli, message string, arg ...string) {
+	printErr(nil, message, arg...)
+	app.PrintLongHelp()
 	cli.Exit(1)
 }
 
@@ -35,6 +45,9 @@ func addTag(tagman gogr.TagManager, tag string, dirs []string) {
 		}
 		dirs = append(dirs, wd)
 	}
+	if !tagman.ValidateTag(tag) {
+		fault(nil, "Improper tag string")
+	}
 	tagman.Add(tag, dirs...)
 	err := tagman.Save()
 	if err != nil {
@@ -43,6 +56,9 @@ func addTag(tagman gogr.TagManager, tag string, dirs []string) {
 }
 
 func rmTag(tagman gogr.TagManager, tag string, dirs []string) {
+	if !tagman.ValidateTag(tag) {
+		fault(nil, "Improper tag string")
+	}
 	tagman.Remove(tag, dirs...)
 	err := tagman.Save()
 	if err != nil {
@@ -171,11 +187,16 @@ func main() {
 	argArg := app.StringsArg("ARG", nil, "Directories and command to be run")
 
 	app.Action = func() {
+		if len(*argArg) == 0 {
+			faultShowHelp(app, "Arguments required")
+		}
 		tagitems := gogr.ParseTags(*argArg)
 		cmd, tags, dirs, args, err := gogr.VerifyTags(tagitems)
 		if err != nil {
 			fault(err, "Parsing arguments failed")
-			return
+		}
+		if len(dirs) == 0 {
+			faultShowHelp(app, "Directories are required")
 		}
 
 		if cmd.Str != "" {
@@ -198,5 +219,8 @@ func main() {
 		}
 	}
 
-	app.Run(os.Args)
+	err := app.Run(os.Args)
+	if err != nil {
+		fault(err, "Argument parsing failed")
+	}
 }
