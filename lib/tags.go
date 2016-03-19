@@ -13,13 +13,10 @@ type TagManager struct {
 	Tags     map[string][]string `json:"tags"`
 }
 
-type TagData struct {
-}
-
 func NewTagManager(opts Options) (ret TagManager) {
 	ret.ConfFile = opts.Get("configuration-file", "config.json")
 	ret.Tags = make(map[string][]string)
-	ret.Load()
+	_ = ret.Load()
 
 	return
 }
