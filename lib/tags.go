@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 )
 
 type TagManager struct {
@@ -55,6 +56,11 @@ func deduplicate(strings []string) (ret []string) {
 		ret = append(ret, k)
 	}
 	return
+}
+
+func (t *TagManager) ValidateTag(tag string) bool {
+	re := regexp.MustCompile("[a-zA-Z0-9]+")
+	return re.MatchString(tag)
 }
 
 func (t *TagManager) Add(tag string, dirs ...string) {
