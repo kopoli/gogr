@@ -135,6 +135,39 @@ func main() {
 		}
 	})
 
+	app.Command("discover", "Discover directories containing a certain file", func(cmd *cli.Cmd) {
+		optDepth := cmd.IntOpt("max-depth d", 5, "Maximum depth of discovery")
+		wd, err := os.Getwd()
+		if err != nil {
+			fault(err, "Could not get the current directory")
+		}
+		tagArg := cmd.StringArg("TAG", "", "Tag to add or update")
+		optRoots := cmd.StringsArg("ROOT", []string{wd},
+			"Root directory for the discovery")
+		optFile := cmd.StringOpt("file f", ".git",
+			"File or directory to discover")
+		cmd.Spec = "[OPTIONS] TAG [ROOT...]"
+
+		cmd.Action = func() {
+			var dirs []string
+			opts.Set("discover-max-depth", strconv.Itoa(*optDepth))
+			for _, root := range *optRoots {
+				tmp, err := gogr.Discover(opts, root, *optFile)
+				if err != nil {
+					fault(err, "Discovery failed")
+				}
+
+				dirs = append(dirs, tmp...)
+			}
+			for _, dir := range dirs {
+				fmt.Println(dir)
+			}
+
+			rmTag(tagman, *tagArg, []string{})
+			addTag(tagman, *tagArg, dirs)
+		}
+	})
+
 	argArg := app.StringsArg("ARG", nil, "Directories and command to be run")
 
 	app.Action = func() {
