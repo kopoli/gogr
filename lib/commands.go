@@ -57,7 +57,7 @@ func (p *PrefixedWriter) Write(buf []byte) (n int, err error) {
 
 func RunCommand(directory string, program string, args ...string) (err error) {
 	dir := filepath.Base(directory)
-	pwo := NewPrefixedWriter(fmt.Sprintf("%s: ", dir), os.Stderr)
+	pwo := NewPrefixedWriter(fmt.Sprintf("%s: ", dir), os.Stdout)
 	pwe := NewPrefixedWriter(fmt.Sprintf("%s(err): ", dir), os.Stderr)
 	cmd := exec.Command(program, args...)
 	cmd.Dir = directory
@@ -147,7 +147,7 @@ func ParseTags(args []string) (ret []TagItem) {
 		return
 	}
 
-	re := regexp.MustCompile("([+-]?)@([[:alpha:]]+)")
+	re := regexp.MustCompile("([+-]?)@([a-zA-Z0-9]+)")
 
 	for _, arg := range args {
 		var ta TagItem
