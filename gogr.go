@@ -14,7 +14,8 @@ import (
 var (
 	progName     = "gogr"
 	majorVersion = "1"
-	version      = "Undefined"
+	version      = "development"
+	timestamp    = "undefined"
 	progVersion  = majorVersion + "-" + version
 )
 
@@ -76,8 +77,11 @@ func main() {
 	app := cli.App(progName, "Run commands in multiple directories")
 	app.Spec = "[OPTIONS] [-- ARG...]"
 
-	app.Version("version v", fmt.Sprintf("%s: %s\ngo: %s\nBuilt with: %s on %s/%s\n", progName, progVersion,
-		runtime.Version(), runtime.Compiler, runtime.GOOS, runtime.GOARCH))
+	app.Version("version v", fmt.Sprintf(
+		"%s: %s\nBuilt with: %s/%s on %s/%s\nBuilt: %s",
+		progName, progVersion, runtime.Compiler, runtime.Version(),
+		runtime.GOOS, runtime.GOARCH, timestamp))
+
 	optVerbose := app.BoolOpt("verbose V", false, "Print verbose output")
 	optConfig := app.StringOpt("config c", gogr.DefaultConfigFile(opts), "Configuration file")
 	optConcurrent := app.BoolOpt("concurrent j", false, "Run the commands concurrently")
