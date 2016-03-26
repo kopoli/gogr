@@ -1,7 +1,6 @@
 package gogr
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,10 +8,13 @@ import (
 	"strings"
 )
 
+var filepathWalk = filepath.Walk
+
+// Discover directories beginning from root that contain the given file
 func Discover(opts Options, root string, file string) (dirs []string, err error) {
 	maxDepth, err := strconv.ParseInt(opts.Get("discover-max-depth", "5"), 10, 0)
 	if err != nil {
-		err = errors.New(fmt.Sprintf("Parsing maximum discovery depth failed: %s", err))
+		err = fmt.Errorf("Parsing maximum discovery depth failed: %s", err)
 		return
 	}
 
@@ -31,6 +33,6 @@ func Discover(opts Options, root string, file string) (dirs []string, err error)
 		return
 	}
 
-	err = filepath.Walk(root, dw)
+	err = filepathWalk(root, dw)
 	return
 }
