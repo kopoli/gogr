@@ -203,8 +203,8 @@ func main() {
 		if err != nil {
 			fault(err, "Parsing arguments failed")
 		}
-		if len(dirs) == 0 {
-			faultShowHelp(app, "Directories are required")
+		if len(dirs) == 0 && len(tags) == 0 {
+			faultShowHelp(app, "Directories or tags are required")
 		}
 
 		if cmd.Str != "" {
