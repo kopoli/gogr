@@ -8,6 +8,7 @@ type Options interface {
 	Get(key string, fallback string) string
 }
 
+// GetOptions gets the static options structure
 func GetOptions() Options {
 	return &options
 }
