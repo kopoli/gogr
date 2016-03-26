@@ -109,6 +109,16 @@ func (t *TagManager) Dirs(tags []string, dirs []string) (ret []string) {
 	return
 }
 
+func (t *TagManager) AreProper(tags []string) (invalid []string) {
+	for _, tag := range tags {
+		_, ok := t.Tags[tag]
+		if !ok {
+			invalid = append(invalid, tag)
+		}
+	}
+	return
+}
+
 func isDirectory(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && info.IsDir()
