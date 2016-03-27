@@ -27,22 +27,18 @@ func (p *PrefixedWriter) Write(buf []byte) (n int, err error) {
 
 	n = len(buf)
 
-	last := false
-	pos := bytes.IndexRune(buf, '\n')
-	for !last {
+	pos := -1
+	for len(buf) > 0 {
+		pos = bytes.IndexRune(buf, '\n')
 		if pos == -1 {
 			pos = len(buf) - 1
-			last = true
 		}
 
-		if len(buf) > 0 && (!wr([]byte(p.Prefix)) || !wr(buf[:pos+1])) {
+		if !wr([]byte(p.Prefix)) || !wr(buf[:pos+1]) {
 			return
 		}
 
-		if !last {
-			buf = buf[pos+1:]
-			pos = bytes.IndexRune(buf, '\n')
-		}
+		buf = buf[pos+1:]
 	}
 	return
 }
