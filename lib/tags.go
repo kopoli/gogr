@@ -9,11 +9,14 @@ import (
 	"regexp"
 )
 
+// TagManager is a repository for tags
 type TagManager struct {
 	ConfFile string              `json:"-"`
 	Tags     map[string][]string `json:"tags"`
 }
 
+// NewTagManager creates a repository for tags, which it writes to the given
+// "configuration-file" from opts.
 func NewTagManager(opts Options) (ret TagManager) {
 	ret.ConfFile = opts.Get("configuration-file", "config.json")
 	ret.Tags = make(map[string][]string)
@@ -22,6 +25,7 @@ func NewTagManager(opts Options) (ret TagManager) {
 	return
 }
 
+// Save saves the tags into a configuration file.
 func (t *TagManager) Save() (err error) {
 	b, err := json.MarshalIndent(t, " ", "    ")
 	if err != nil {
@@ -35,6 +39,7 @@ func (t *TagManager) Save() (err error) {
 	return
 }
 
+// Load loads the tags from a configuration file.
 func (t *TagManager) Load() (err error) {
 	b, err := ioutil.ReadFile(t.ConfFile)
 	if err != nil {
@@ -45,6 +50,7 @@ func (t *TagManager) Load() (err error) {
 	return
 }
 
+// deduplicate removes duplicates from a list of strings
 func deduplicate(strings []string) (ret []string) {
 	m := make(map[string]bool)
 	for _, str := range strings {
@@ -56,17 +62,31 @@ func deduplicate(strings []string) (ret []string) {
 	return
 }
 
+// cleanup returns absolute directory names from a given list of directories.
+// Returns only directories that exist.
+func cleanup(dirs []string) (ret []string) {
+	for _, dir := range dirs {
+		dir, err := filepath.Abs(dir)
+		if err == nil && isDirectory(dir) {
+			ret = append(ret, filepath.Clean(dir))
+		}
+	}
+	return
+}
+
+// ValidateTag validates the tag string. Returns true if valid.
 func (t *TagManager) ValidateTag(tag string) bool {
 	re := regexp.MustCompile("[a-zA-Z0-9]+")
 	return re.MatchString(tag)
 }
 
+// Add adds given directories to given tag. The tag is created if necessary.
 func (t *TagManager) Add(tag string, dirs ...string) {
 	t.Tags[tag] = deduplicate(cleanup(append(t.Tags[tag], dirs...)))
 }
 
-// If dirs is empty, remove the whole tag, otherwise remove the given
-// directories from the tag
+// Remove removes either given directories from a tag. Alternatively, if the
+// list of directories is empty, removes the whole tag.
 func (t *TagManager) Remove(tag string, dirs ...string) {
 	if len(dirs) == 0 {
 		delete(t.Tags, tag)
@@ -92,16 +112,7 @@ func (t *TagManager) Remove(tag string, dirs ...string) {
 	t.Tags[tag] = ret
 }
 
-func cleanup(dirs []string) (ret []string) {
-	for _, dir := range dirs {
-		dir, err := filepath.Abs(dir)
-		if err == nil && isDirectory(dir) {
-			ret = append(ret, filepath.Clean(dir))
-		}
-	}
-	return
-}
-
+// Dirs returns a combined list of directories of given tags.
 func (t *TagManager) Dirs(tags []string, dirs []string) (ret []string) {
 	for _, tag := range tags {
 		ret = append(ret, t.Tags[tag]...)
@@ -111,6 +122,8 @@ func (t *TagManager) Dirs(tags []string, dirs []string) (ret []string) {
 	return
 }
 
+// AreProper checks if the given tags exist. Returns the list of non-existing
+// tags.
 func (t *TagManager) AreProper(tags []string) (invalid []string) {
 	for _, tag := range tags {
 		_, ok := t.Tags[tag]
@@ -121,11 +134,15 @@ func (t *TagManager) AreProper(tags []string) (invalid []string) {
 	return
 }
 
+// isDirectory checks if given path is a directory.
 func isDirectory(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && info.IsDir()
 }
 
+// ParseDirectory parses a list of strings into list of directories and list
+// of arguments. The directories are the first part of the given list of
+// strings. The rest arguments are the rest.
 func ParseDirectories(args []string) (dirs []string, rest []string, err error) {
 	pos := -1
 	for i, arg := range args {
@@ -145,6 +162,7 @@ func ParseDirectories(args []string) (dirs []string, rest []string, err error) {
 	return
 }
 
+// ItemType denotes different types of strings within command line arguments.
 type ItemType int
 
 const (
@@ -152,6 +170,8 @@ const (
 	Arg
 )
 
+// Operation lists the different types of operations for command line
+// arguments,
 type Operation int
 
 const (
@@ -160,12 +180,14 @@ const (
 	Remove
 )
 
+// TagItem is a parsed result of a command line parsing with ParseTags.
 type TagItem struct {
 	Type ItemType
 	Op   Operation
 	Str  string
 }
 
+// ParseTags parses a list of strings into a list of TagItem structures.
 func ParseTags(args []string) (ret []TagItem) {
 	if len(args) == 0 {
 		return
@@ -194,6 +216,7 @@ func ParseTags(args []string) (ret []TagItem) {
 	return
 }
 
+// VerifyTags verifies the logic for adding and removing tags on the command line.
 func VerifyTags(items []TagItem) (command TagItem, tags []string, dirs []string, args []string, err error) {
 	if len(items) == 0 {
 		err = errors.New("Arguments required")
