@@ -105,6 +105,12 @@ func cmdTag(cmd *cli.Cmd) {
 		}
 	})
 
+	listTags := func() {
+		for tag := range tagman.Tags {
+			fmt.Println(tag)
+		}
+	}
+
 	cmd.Command("list", "List all tags or directories of given tag. This is the default action.", func(cmd *cli.Cmd) {
 		cmd.Spec = "[TAG]"
 
@@ -112,9 +118,7 @@ func cmdTag(cmd *cli.Cmd) {
 
 		cmd.Action = func() {
 			if *tagArg == "" {
-				for tag := range tagman.Tags {
-					fmt.Println(tag)
-				}
+				listTags()
 			} else {
 				dirs := tagman.Dirs([]string{*tagArg}, nil)
 				for _, dir := range dirs {
@@ -124,11 +128,7 @@ func cmdTag(cmd *cli.Cmd) {
 		}
 	})
 
-	cmd.Action = func() {
-		for tag := range tagman.Tags {
-			fmt.Println(tag)
-		}
-	}
+	cmd.Action = listTags
 }
 
 func cmdDiscover(cmd *cli.Cmd) {
