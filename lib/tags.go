@@ -73,6 +73,8 @@ func (t *TagManager) Remove(tag string, dirs ...string) {
 		return
 	}
 
+	dirs = deduplicate(cleanup(dirs))
+
 	var ret []string
 
 	for _, dir := range t.Tags[tag] {
