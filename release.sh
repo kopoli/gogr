@@ -43,7 +43,6 @@ case "$1" in
          compile
          ;;
      release)
-         set -x
          release
          ;;
      *)
