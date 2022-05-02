@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/jawher/mow.cli"
+	"github.com/kopoli/appkit"
 	"github.com/kopoli/gogr/lib"
 )
 
@@ -20,7 +21,7 @@ var (
 )
 
 var tagman gogr.TagManager
-var opts gogr.Options
+var opts appkit.Options
 
 func printErr(err error, message string, arg ...string) {
 	msg := ""
@@ -165,7 +166,7 @@ func cmdDiscover(cmd *cli.Cmd) {
 }
 
 func main() {
-	opts = gogr.GetOptions()
+	opts = appkit.NewOptions()
 
 	opts.Set("application-name", progName)
 	opts.Set("configuration-file", "config.json")

@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/kopoli/appkit"
 )
 
 var mockFileList []string
@@ -52,10 +54,10 @@ func allFromSlash(dirs []string) (ret []string) {
 
 func TestDiscover(t *testing.T) {
 	filepathWalk = mockWalk
-	opts := optionMap{}
+	opts := appkit.NewOptions()
 
 	opts.Set("discover-max-depth", "abc")
-	_, err := Discover(&opts, ".", ".git")
+	_, err := Discover(opts, ".", ".git")
 	if err == nil {
 		t.Error("Having non-number in discover-max-depth should fail Discover")
 	}
@@ -63,7 +65,7 @@ func TestDiscover(t *testing.T) {
 	mockFileList = []string{"a/", "b/.git", "c/something/.git", "d"}
 
 	opts.Set("discover-max-depth", "5")
-	dirs, err := Discover(&opts, ".", ".git")
+	dirs, err := Discover(opts, ".", ".git")
 	checkDirs := []string{"b", "c/something"}
 	checkDirs = allFromSlash(checkDirs)
 	if !containsOnly(dirs, checkDirs) {
@@ -71,7 +73,7 @@ func TestDiscover(t *testing.T) {
 	}
 
 	opts.Set("discover-max-depth", "0")
-	dirs, err = Discover(&opts, ".", ".git")
+	dirs, err = Discover(opts, ".", ".git")
 	if len(dirs) != 0 {
 		t.Error("When max-depth == 0 Discover should not find anything. It found", dirs)
 	}

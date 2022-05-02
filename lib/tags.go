@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+
+	"github.com/kopoli/appkit"
 )
 
 // TagManager is a repository for tags
@@ -17,7 +19,7 @@ type TagManager struct {
 
 // NewTagManager creates a repository for tags, which it writes to the given
 // "configuration-file" from opts.
-func NewTagManager(opts Options) (ret TagManager) {
+func NewTagManager(opts appkit.Options) (ret TagManager) {
 	ret.ConfFile = opts.Get("configuration-file", "config.json")
 	ret.Tags = make(map[string][]string)
 	_ = ret.Load()

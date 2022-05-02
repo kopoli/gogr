@@ -6,12 +6,14 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/kopoli/appkit"
 )
 
 var filepathWalk = filepath.Walk
 
 // Discover directories beginning from root that contain the given file
-func Discover(opts Options, root string, file string) (dirs []string, err error) {
+func Discover(opts appkit.Options, root string, file string) (dirs []string, err error) {
 	maxDepth, err := strconv.ParseInt(opts.Get("discover-max-depth", "5"), 10, 0)
 	if err != nil {
 		err = fmt.Errorf("Parsing maximum discovery depth failed: %s", err)

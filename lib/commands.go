@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"sync"
+
+	"github.com/kopoli/appkit"
 )
 
 func RunCommand(directory string, program string, args ...string) (err error) {
@@ -27,7 +29,7 @@ func RunCommand(directory string, program string, args ...string) (err error) {
 	return
 }
 
-func RunCommands(opts Options, dirs []string, args []string) (err error) {
+func RunCommands(opts appkit.Options, dirs []string, args []string) (err error) {
 	concurrent, err := strconv.ParseBool(opts.Get("concurrent", "false"))
 	if err != nil {
 		return
