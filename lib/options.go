@@ -18,7 +18,7 @@ var options optionMap
 // optionMap implements the Options interface with a map
 type optionMap struct {
 	values map[string]string
-	mutex   sync.Mutex
+	mutex  sync.Mutex
 }
 
 func (o *optionMap) initialize() {

@@ -221,7 +221,7 @@ func main() {
 
 		invalid := tagman.AreProper(tags)
 		if len(invalid) > 0 {
-			fault(nil, "Improper tags: ",strings.Join(invalid,", "))
+			fault(nil, "Improper tags: ", strings.Join(invalid, ", "))
 		}
 
 		dirs = tagman.Dirs(tags, dirs)

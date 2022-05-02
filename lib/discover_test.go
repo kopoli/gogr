@@ -67,13 +67,13 @@ func TestDiscover(t *testing.T) {
 	checkDirs := []string{"b", "c/something"}
 	checkDirs = allFromSlash(checkDirs)
 	if !containsOnly(dirs, checkDirs) {
-		t.Error("Discover should have discovered only dirs", checkDirs, "but it found",dirs)
+		t.Error("Discover should have discovered only dirs", checkDirs, "but it found", dirs)
 	}
 
 	opts.Set("discover-max-depth", "0")
 	dirs, err = Discover(&opts, ".", ".git")
 	if len(dirs) != 0 {
-		t.Error("When max-depth == 0 Discover should not find anything. It found",dirs)
+		t.Error("When max-depth == 0 Discover should not find anything. It found", dirs)
 	}
 
 }
