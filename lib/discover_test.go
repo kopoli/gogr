@@ -12,8 +12,7 @@ import (
 var mockFileList []string
 var mockWalkError error
 
-func mockWalk(root string, WalkFn filepath.WalkFunc) (err error) {
-
+func mockWalk(root string, walkFn filepath.WalkFunc) (err error) {
 	info, err := os.Stat(".")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Internal error: os.Stat pwd failed:", err)
@@ -21,7 +20,7 @@ func mockWalk(root string, WalkFn filepath.WalkFunc) (err error) {
 	}
 
 	for _, file := range mockFileList {
-		WalkFn(file, info, nil)
+		_ = walkFn(file, info, nil)
 	}
 	err = mockWalkError
 	return
@@ -65,7 +64,7 @@ func TestDiscover(t *testing.T) {
 	mockFileList = []string{"a/", "b/.git", "c/something/.git", "d"}
 
 	opts.Set("discover-max-depth", "5")
-	dirs, err := Discover(opts, ".", ".git")
+	dirs, _ := Discover(opts, ".", ".git")
 	checkDirs := []string{"b", "c/something"}
 	checkDirs = allFromSlash(checkDirs)
 	if !containsOnly(dirs, checkDirs) {
@@ -73,9 +72,8 @@ func TestDiscover(t *testing.T) {
 	}
 
 	opts.Set("discover-max-depth", "0")
-	dirs, err = Discover(opts, ".", ".git")
+	dirs, _ = Discover(opts, ".", ".git")
 	if len(dirs) != 0 {
 		t.Error("When max-depth == 0 Discover should not find anything. It found", dirs)
 	}
-
 }

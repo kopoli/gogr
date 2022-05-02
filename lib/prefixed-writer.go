@@ -19,7 +19,7 @@ func NewPrefixedWriter(prefix string, writer io.Writer) (ret PrefixedWriter) {
 func (p *PrefixedWriter) Write(buf []byte) (n int, err error) {
 	n = len(buf)
 
-	pos := -1
+	var pos int
 	line := make([]byte, 0, 1024)
 	for len(buf) > 0 {
 		pos = bytes.IndexRune(buf, '\n')

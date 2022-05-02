@@ -218,45 +218,55 @@ func ParseTags(args []string) (ret []TagItem) {
 	return
 }
 
+type VerifyTagsRet struct {
+	Command TagItem
+	Tags    []string
+	Dirs    []string
+	Args    []string
+}
+
 // VerifyTags verifies the logic for adding and removing tags on the command line.
-func VerifyTags(items []TagItem) (command TagItem, tags []string, dirs []string, args []string, err error) {
+func VerifyTags(items []TagItem) (*VerifyTagsRet, error) {
+	ret := &VerifyTagsRet{}
+	var err error
+
 	if len(items) == 0 {
-		err = errors.New("Arguments required")
-		return
+		err = errors.New("arguments required")
+		return nil, err
 	}
 
 	for i, item := range items {
-		if item.Op != None {
+		switch {
+		case item.Op != None:
 			if i > 0 {
-				err = errors.New("Tagging must be the first argument")
-				return
+				err = errors.New("tagging must be the first argument")
+				return nil, err
 			}
-			command = item
-			continue
-		} else if item.Type == Tag {
-			if len(dirs) > 0 || len(args) > 0 {
-				err = errors.New("Tags must precede directories or commands")
-				return
+			ret.Command = item
+		case item.Type == Tag:
+			if len(ret.Dirs) > 0 || len(ret.Args) > 0 {
+				err = errors.New("tags must precede directories or commands")
+				return nil, err
 			}
-			tags = append(tags, item.Str)
-			continue
-		} else if item.Type == Arg {
-			if len(args) > 0 || !isDirectory(item.Str) {
-				args = append(args, item.Str)
+			ret.Tags = append(ret.Tags, item.Str)
+		case item.Type == Arg:
+			if len(ret.Args) > 0 || !isDirectory(item.Str) {
+				ret.Args = append(ret.Args, item.Str)
 			} else {
-				dirs = append(dirs, item.Str)
+				ret.Dirs = append(ret.Dirs, item.Str)
 			}
 		}
 	}
 
-	if command.Str == "" && len(args) == 0 {
-		err = errors.New("No command to run given")
-		return
+	if ret.Command.Str == "" && len(ret.Args) == 0 {
+		err = errors.New("no command to run given")
+		return nil, err
 	}
 
-	if command.Str != "" && (len(dirs) == 0 || len(args) > 0) {
-		err = errors.New("Tagging requires one or more directories and zero commands.")
+	if ret.Command.Str != "" && (len(ret.Dirs) == 0 || len(ret.Args) > 0) {
+		err = errors.New("tagging requires one or more directories and zero commands")
+		return nil, err
 	}
 
-	return
+	return ret, nil
 }

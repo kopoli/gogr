@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jawher/mow.cli"
+	cli "github.com/jawher/mow.cli"
 	"github.com/kopoli/appkit"
-	"github.com/kopoli/gogr/lib"
+	gogr "github.com/kopoli/gogr/lib"
 )
 
 var (
@@ -200,34 +200,36 @@ func main() {
 			faultShowHelp(app, "Arguments required")
 		}
 		tagitems := gogr.ParseTags(*argArg)
-		cmd, tags, dirs, args, err := gogr.VerifyTags(tagitems)
+		vt, err := gogr.VerifyTags(tagitems)
 		if err != nil {
 			fault(err, "Parsing arguments failed")
 		}
-		if len(dirs) == 0 && len(tags) == 0 {
+		if len(vt.Dirs) == 0 && len(vt.Tags) == 0 {
 			faultShowHelp(app, "Directories or tags are required")
 		}
 
-		if cmd.Str != "" {
-			switch cmd.Op {
+		if vt.Command.Str != "" {
+			switch vt.Command.Op {
 			case gogr.Add:
-				addTag(tagman, cmd.Str, dirs)
+				addTag(tagman, vt.Command.Str, vt.Dirs)
 			case gogr.Remove:
-				rmTag(tagman, cmd.Str, dirs)
+				rmTag(tagman, vt.Command.Str, vt.Dirs)
+			case gogr.None:
+				fallthrough
 			default:
 				fault(nil, "Internal error: improper command")
 			}
 			return
 		}
 
-		invalid := tagman.AreProper(tags)
+		invalid := tagman.AreProper(vt.Tags)
 		if len(invalid) > 0 {
 			fault(nil, "Improper tags: ", strings.Join(invalid, ", "))
 		}
 
-		dirs = tagman.Dirs(tags, dirs)
+		vt.Dirs = tagman.Dirs(vt.Tags, vt.Dirs)
 
-		err = gogr.RunCommands(opts, dirs, args)
+		err = gogr.RunCommands(opts, vt.Dirs, vt.Args)
 		if err != nil {
 			fault(err, "Running command failed")
 		}

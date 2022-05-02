@@ -6,9 +6,10 @@ import (
 	"testing"
 )
 
+var prefix = "str: "
+
 func TestPrefixedWriter(t *testing.T) {
 	buf := bytes.Buffer{}
-	prefix := "str: "
 	pw := NewPrefixedWriter(prefix, &buf)
 
 	if buf.String() != "" {
@@ -39,11 +40,10 @@ func TestPrefixedWriter(t *testing.T) {
 
 func TestPrefixWriterNoNewline(t *testing.T) {
 	buf := bytes.Buffer{}
-	prefix := "str: "
 	pw := NewPrefixedWriter(prefix, &buf)
 
 	data := "something"
-	fmt.Fprintf(&pw, data)
+	fmt.Fprintf(&pw, "%s", data)
 
 	result := prefix + data
 	if buf.String() != result {
@@ -53,7 +53,6 @@ func TestPrefixWriterNoNewline(t *testing.T) {
 
 func TestPrefixWriterEmpty(t *testing.T) {
 	buf := bytes.Buffer{}
-	prefix := "str: "
 	pw := NewPrefixedWriter(prefix, &buf)
 	fmt.Fprintf(&pw, "")
 
