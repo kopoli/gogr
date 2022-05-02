@@ -182,6 +182,7 @@ func main() {
 	optVerbose := app.BoolOpt("verbose V", false, "Print verbose output")
 	optConfig := app.StringOpt("config c", gogr.DefaultConfigFile(opts), "Configuration file")
 	optConcurrent := app.BoolOpt("concurrent j", false, "Run the commands concurrently")
+	optLicenses := app.BoolOpt("licenses l", false, "Display the licenses")
 
 	app.Before = func() {
 		opts.Set("configuration-file", *optConfig)
@@ -196,6 +197,18 @@ func main() {
 	argArg := app.StringsArg("ARG", nil, "Directories and command to be run")
 
 	app.Action = func() {
+		if *optLicenses {
+			l, err := GetLicenses()
+			if err != nil {
+				fault(err, "Getting licenses failed")
+			}
+			s, err := appkit.LicenseString(l)
+			if err != nil {
+				fault(err, "Interpreting licenses failed")
+			}
+			fmt.Print(s)
+			return
+		}
 		if len(*argArg) == 0 {
 			faultShowHelp(app, "Arguments required")
 		}
