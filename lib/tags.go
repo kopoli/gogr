@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 
 	"github.com/kopoli/appkit"
 )
@@ -120,6 +121,8 @@ func (t *TagManager) Dirs(tags []string, dirs []string) (ret []string) {
 		ret = append(ret, t.Tags[tag]...)
 	}
 	ret = deduplicate(cleanup(append(ret, dirs...)))
+
+	sort.Strings(ret)
 
 	return
 }
