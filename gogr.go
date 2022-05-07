@@ -89,11 +89,15 @@ func main() {
 	discover := appkit.NewCommand(base, "discover", "Discover directories containing a certain file")
 	discover.ArgumentHelp = "TAG [ROOT ...]"
 	optDepth := discover.Flags.Int("max-depth", 5, "Maximum depth of discovery")
-	optFile := discover.Flags.String("File", ".git", "File or directory do discover")
+	discover.Flags.IntVar(optDepth, "d", 5, "Maximum depth of discovery")
+	optFile := discover.Flags.String("file", ".git", "File or directory to discover")
+	discover.Flags.StringVar(optFile, "f", ".git", "File or directory to discover")
 
 	err := base.Parse(os.Args[1:], opts)
 	if err == flag.ErrHelp {
 		os.Exit(0)
+	} else if err != nil {
+		os.Exit(1)
 	}
 
 	errorShowHelp := func(message string) {
@@ -135,7 +139,7 @@ func main() {
 
 	tagman = gogr.NewTagManager(opts)
 
-	parseDir := func(dirs []string) ([]string) {
+	parseDir := func(dirs []string) []string {
 		ret := []string{}
 		if len(dirs) > 0 {
 			_, rest, err := gogr.ParseDirectories(dirs)
@@ -150,7 +154,7 @@ func main() {
 
 	parseTagDirArg := func(args []string) (tag string, dirs []string) {
 		if len(args) < 1 {
-			fault(fmt.Errorf("Not enough arguments"), "Command line parsing failed")
+			fault(fmt.Errorf("not enough arguments"), "Command line parsing failed")
 		}
 
 		return args[0], args[1:]
@@ -183,7 +187,7 @@ func main() {
 			fault(err, "Could not get the current directory")
 			roots = append(roots, wd)
 		}
-	
+
 		var dirs []string
 		for _, root := range roots {
 			tmp, err := gogr.Discover(opts, root, *optFile)
