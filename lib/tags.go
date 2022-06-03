@@ -273,3 +273,21 @@ func VerifyTags(items []TagItem) (*VerifyTagsRet, error) {
 
 	return ret, nil
 }
+
+// ChangeToRelativePaths changes given paths to relative of current working
+// directory. If there are any errors, the original value is returned.
+func ChangeToRelativePaths(paths []string) []string {
+	curdir, err := os.Getwd()
+	if err != nil {
+		return paths
+	}
+
+	for i := range paths {
+		p, err := filepath.Rel(curdir, paths[i])
+		if err == nil {
+			paths[i] = p
+		}
+	}
+
+	return paths
+}

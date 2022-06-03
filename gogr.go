@@ -79,8 +79,13 @@ func main() {
 
 	tag := appkit.NewCommand(base, "tag", "Tag management")
 	tag.SubCommandHelp = "<COMMAND>"
+
 	tlist := appkit.NewCommand(tag, "list", "List all tags or directories of given tag. This is the default action.")
 	tlist.ArgumentHelp = "[TAG ...]"
+	optRelativeHelp := "Print out directories relative to current directory"
+	optRelative := tlist.Flags.Bool("relative", false, optRelativeHelp)
+	tlist.Flags.BoolVar(optRelative, "r", false, optRelativeHelp)
+
 	tadd := appkit.NewCommand(tag, "add", "Add tag to path")
 	tadd.ArgumentHelp = "TAG [DIR ...]"
 	trm := appkit.NewCommand(tag, "rm", "Remove tag from paths")
@@ -129,6 +134,10 @@ func main() {
 	opts.Set("discover-max-depth", strconv.Itoa(*optDepth))
 	opts.Set("discover-file", *optFile)
 
+	if *optRelative {
+		opts.Set("relative-paths", "t")
+	}
+
 	cmd := opts.Get("cmdline-command", "")
 	argstr := opts.Get("cmdline-args", "")
 	args := appkit.SplitArguments(argstr)
@@ -170,6 +179,9 @@ func main() {
 			}
 		} else {
 			dirs := tagman.Dirs(args, nil)
+			if opts.IsSet("relative-paths") {
+				dirs = gogr.ChangeToRelativePaths(dirs)
+			}
 			for _, dir := range dirs {
 				fmt.Println(dir)
 			}
