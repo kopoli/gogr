@@ -17,12 +17,12 @@ func RunCommand(directory string, program string, args ...string) (err error) {
 	pwe := NewPrefixedWriter(fmt.Sprintf("%s(err): ", dir), os.Stderr)
 	cmd := exec.Command(program, args...)
 	cmd.Dir = directory
-	cmd.Stdout = &pwo
-	cmd.Stderr = &pwe
+	cmd.Stdout = pwo
+	cmd.Stderr = pwe
 
 	err = cmd.Run()
 	if err != nil {
-		fmt.Fprintf(&pwe, "Command failed: %s\n", err)
+		fmt.Fprintf(pwe, "Command failed: %s\n", err)
 		return
 	}
 
