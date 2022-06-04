@@ -94,11 +94,8 @@ $ gogr tag rm this .
 
 # Alternatively
 
-$ gogr -- -@this .
+$ gogr -@this .
 ```
-
-NOTE: The `-@this` syntax is ambiguous with command line flags, it must be
-preceded by `--`.
 
 ### Listing tags
 
