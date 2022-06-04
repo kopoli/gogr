@@ -198,7 +198,7 @@ func ParseTags(args []string) (ret []TagItem) {
 		return
 	}
 
-	re := regexp.MustCompile("([+-]?)@([a-zA-Z0-9]+)")
+	re := regexp.MustCompile("^([+-]?)@([a-zA-Z0-9]+)$")
 
 	for _, arg := range args {
 		var ta TagItem
