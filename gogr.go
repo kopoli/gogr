@@ -54,6 +54,20 @@ func rmTag(tagman gogr.TagManager, tag string, dirs []string) {
 	fault(err, "Saving configuration failed.")
 }
 
+func escapeTagArgs(args []string, unescape bool) []string {
+	for i := range args {
+		if !unescape {
+			if strings.HasPrefix(args[i], "\\") ||
+				strings.HasPrefix(args[i], "-@") {
+				args[i] = "\\" + args[i]
+			}
+		} else {
+			args[i] = strings.TrimPrefix(args[i], "\\")
+		}
+	}
+	return args
+}
+
 func main() {
 	opts = appkit.NewOptions()
 
@@ -98,7 +112,9 @@ func main() {
 	optFile := discover.Flags.String("file", ".git", "File or directory to discover")
 	discover.Flags.StringVar(optFile, "f", ".git", "File or directory to discover")
 
-	err := base.Parse(os.Args[1:], opts)
+	args := escapeTagArgs(os.Args[1:], false)
+
+	err := base.Parse(args, opts)
 	if err == flag.ErrHelp {
 		os.Exit(0)
 	} else if err != nil {
@@ -140,7 +156,8 @@ func main() {
 
 	cmd := opts.Get("cmdline-command", "")
 	argstr := opts.Get("cmdline-args", "")
-	args := appkit.SplitArguments(argstr)
+	args = appkit.SplitArguments(argstr)
+	args = escapeTagArgs(args, true)
 
 	if cmd == "" && argstr == "" {
 		errorShowHelp("Arguments required")
