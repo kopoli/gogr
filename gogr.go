@@ -186,6 +186,14 @@ func main() {
 		return args[0], args[1:]
 	}
 
+	checkTags := func(tags []string) {
+		invalid := tagman.AreProper(tags)
+		if len(invalid) > 0 {
+			fault(fmt.Errorf("improper tags"),
+				"Tags: ", strings.Join(invalid, ", "))
+		}
+	}
+
 	switch cmd {
 	case "tag":
 		fallthrough
@@ -195,6 +203,7 @@ func main() {
 				fmt.Println(tag)
 			}
 		} else {
+			checkTags(args)
 			dirs := tagman.Dirs(args, nil)
 			if opts.IsSet("relative-paths") {
 				dirs = gogr.ChangeToRelativePaths(dirs)
@@ -251,11 +260,7 @@ func main() {
 			return
 		}
 
-		invalid := tagman.AreProper(vt.Tags)
-		if len(invalid) > 0 {
-			fault(fmt.Errorf("improper tags"),
-				"Tags: ", strings.Join(invalid, ", "))
-		}
+		checkTags(vt.Tags)
 
 		vt.Dirs = tagman.Dirs(vt.Tags, vt.Dirs)
 
