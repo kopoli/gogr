@@ -102,8 +102,8 @@ func main() {
 
 	tadd := appkit.NewCommand(tag, "add", "Add tag to path")
 	tadd.ArgumentHelp = "TAG [DIR ...]"
-	trm := appkit.NewCommand(tag, "rm", "Remove tag from paths")
-	trm.ArgumentHelp = "TAG [DIR ...]"
+	tdel := appkit.NewCommand(tag, "delete del d", "Delete tag from paths")
+	tdel.ArgumentHelp = "TAG [DIR ...]"
 
 	discover := appkit.NewCommand(base, "discover", "Discover directories containing a certain file")
 	discover.ArgumentHelp = "TAG [ROOT ...]"
@@ -215,7 +215,7 @@ func main() {
 	case "tag add":
 		tag, dirs := parseTagDirArg(args)
 		addTag(tagman, tag, parseDir(dirs))
-	case "tag rm":
+	case "tag delete":
 		tag, dirs := parseTagDirArg(args)
 		rmTag(tagman, tag, parseDir(dirs))
 	case "discover":
