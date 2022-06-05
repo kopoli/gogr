@@ -107,8 +107,9 @@ func main() {
 
 	discover := appkit.NewCommand(base, "discover", "Discover directories containing a certain file")
 	discover.ArgumentHelp = "TAG [ROOT ...]"
-	optDepth := discover.Flags.Int("max-depth", 5, "Maximum depth of discovery")
-	discover.Flags.IntVar(optDepth, "d", 5, "Maximum depth of discovery")
+	optDepthHelp := "Maximum depth of discovery"
+	optDepth := discover.Flags.Int("max-depth", 5, optDepthHelp)
+	discover.Flags.IntVar(optDepth, "d", 5, optDepthHelp)
 	optFile := discover.Flags.String("file", ".git", "File or directory to discover")
 	discover.Flags.StringVar(optFile, "f", ".git", "File or directory to discover")
 
