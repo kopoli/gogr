@@ -80,17 +80,18 @@ See `gogr tag add --help` for more information.
 
 ### Removing a tag
 
-The `gogr tag rm` if given no arguments will remove the tag completely. If it
-is given directories which are tagged with the tag, it will untag the directories.
+The `gogr tag delete` if given no arguments will remove the tag completely. If
+it is given directories which are tagged with the tag, it will untag the
+directories.
 
 ```
 # Remove the whole tag
-$ gogr tag rm this
+$ gogr tag delete this
 
 
 # Remove directories from a tag
 
-$ gogr tag rm this .
+$ gogr tag delete this .
 
 # Alternatively
 
