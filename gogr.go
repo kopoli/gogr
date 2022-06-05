@@ -94,15 +94,15 @@ func main() {
 	tag := appkit.NewCommand(base, "tag", "Tag management")
 	tag.SubCommandHelp = "<COMMAND>"
 
-	tlist := appkit.NewCommand(tag, "list", "List all tags or directories of given tag. This is the default action.")
+	tlist := appkit.NewCommand(tag, "list l", "List all tags or directories of given tag. This is the default action.")
 	tlist.ArgumentHelp = "[TAG ...]"
 	optRelativeHelp := "Print out directories relative to current directory"
 	optRelative := tlist.Flags.Bool("relative", false, optRelativeHelp)
 	tlist.Flags.BoolVar(optRelative, "r", false, optRelativeHelp)
 
-	tadd := appkit.NewCommand(tag, "add", "Add tag to path")
+	tadd := appkit.NewCommand(tag, "add a", "Add tag to path")
 	tadd.ArgumentHelp = "TAG [DIR ...]"
-	tdel := appkit.NewCommand(tag, "delete del d", "Delete tag from paths")
+	tdel := appkit.NewCommand(tag, "delete del d", "Delete tag or paths from tag")
 	tdel.ArgumentHelp = "TAG [DIR ...]"
 
 	discover := appkit.NewCommand(base, "discover", "Discover directories containing a certain file")
