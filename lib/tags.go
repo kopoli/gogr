@@ -55,9 +55,9 @@ func (t *TagManager) Load() (err error) {
 
 // deduplicate removes duplicates from a list of strings
 func deduplicate(strings []string) (ret []string) {
-	m := make(map[string]bool)
+	m := make(map[string]struct{})
 	for _, str := range strings {
-		m[str] = true
+		m[str] = struct{}{}
 	}
 	for k := range m {
 		ret = append(ret, k)
