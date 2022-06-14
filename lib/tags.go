@@ -79,7 +79,7 @@ func cleanup(dirs []string) (ret []string) {
 
 // ValidateTag validates the tag string. Returns true if valid.
 func (t *TagManager) ValidateTag(tag string) bool {
-	re := regexp.MustCompile("[a-zA-Z0-9]+")
+	re := regexp.MustCompile("^[a-zA-Z0-9]+$")
 	return re.MatchString(tag)
 }
 
