@@ -3,12 +3,16 @@ package gogr
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/kopoli/appkit"
 )
+
+var stdout io.Writer = os.Stdout
+var stderr io.Writer = os.Stderr
 
 func wrapErr(err error, message string) error {
 	if err != nil {
@@ -57,11 +61,12 @@ func escapeTagArgs(args []string, unescape bool) []string {
 	return args
 }
 
-var ErrHandled error = fmt.Errorf("error already handled")
-var ErrLicenses error = fmt.Errorf("license display requested")
+var ErrHandled = fmt.Errorf("error already handled")
+var ErrLicenses = fmt.Errorf("license display requested")
 
 func Main(cmdLineArgs []string, opts appkit.Options) error {
 	base := appkit.NewCommand(nil, "", "Run commands in multiple directories")
+	base.Flags.SetOutput(stderr)
 	base.ArgumentHelp = "| [+-]@<tag> [CMD ...]"
 	optVersion := base.Flags.Bool("version", false, "Display version")
 	base.Flags.BoolVar(optVersion, "v", false, "Display version")
@@ -75,20 +80,25 @@ func Main(cmdLineArgs []string, opts appkit.Options) error {
 	optLicenses := base.Flags.Bool("licenses", false, "Display the licenses")
 
 	tag := appkit.NewCommand(base, "tag", "Tag management")
+	tag.Flags.SetOutput(stderr)
 	tag.SubCommandHelp = "<COMMAND>"
 
 	tlist := appkit.NewCommand(tag, "list l", "List all tags or directories of given tag. This is the default action.")
+	tlist.Flags.SetOutput(stderr)
 	tlist.ArgumentHelp = "[TAG ...]"
 	optRelativeHelp := "Print out directories relative to current directory"
 	optRelative := tlist.Flags.Bool("relative", false, optRelativeHelp)
 	tlist.Flags.BoolVar(optRelative, "r", false, optRelativeHelp)
 
 	tadd := appkit.NewCommand(tag, "add a", "Add tag to path")
+	tadd.Flags.SetOutput(stderr)
 	tadd.ArgumentHelp = "TAG [DIR ...]"
 	tdel := appkit.NewCommand(tag, "delete del d", "Delete tag or paths from tag")
+	tdel.Flags.SetOutput(stderr)
 	tdel.ArgumentHelp = "TAG [DIR ...]"
 
 	discover := appkit.NewCommand(base, "discover", "Discover directories containing a certain file")
+	discover.Flags.SetOutput(stderr)
 	discover.ArgumentHelp = "TAG [ROOT ...]"
 	optDepthHelp := "Maximum depth of discovery"
 	optDepth := discover.Flags.Int("max-depth", 5, optDepthHelp)
@@ -106,12 +116,12 @@ func Main(cmdLineArgs []string, opts appkit.Options) error {
 	}
 
 	errorShowHelp := func(message string) {
-		fmt.Fprintf(os.Stderr, "Error: %s\n\n", message)
+		fmt.Fprintf(stderr, "Error: %s\n\n", message)
 		base.Flags.Usage()
 	}
 
 	if *optVersion {
-		fmt.Println(appkit.VersionString(opts))
+		fmt.Fprintln(stdout, appkit.VersionString(opts))
 		return nil
 	}
 	opts.Set("configuration-file", *optConfig)
@@ -183,7 +193,7 @@ func Main(cmdLineArgs []string, opts appkit.Options) error {
 	case "tag list":
 		if len(args) == 0 {
 			for tag := range tagman.Tags {
-				fmt.Println(tag)
+				fmt.Fprintln(stdout, tag)
 			}
 		} else {
 			err := checkTags(args)
@@ -195,7 +205,7 @@ func Main(cmdLineArgs []string, opts appkit.Options) error {
 				dirs = ChangeToRelativePaths(dirs)
 			}
 			for _, dir := range dirs {
-				fmt.Println(dir)
+				fmt.Fprintln(stdout, dir)
 			}
 		}
 	case "tag add":
@@ -248,11 +258,17 @@ func Main(cmdLineArgs []string, opts appkit.Options) error {
 			dirs = append(dirs, tmp...)
 		}
 		for _, dir := range dirs {
-			fmt.Println(dir)
+			fmt.Fprintln(stdout, dir)
 		}
 
-		rmTag(tagman, tag, []string{})
-		addTag(tagman, tag, dirs)
+		err = rmTag(tagman, tag, []string{})
+		if err != nil {
+			return err
+		}
+		err = addTag(tagman, tag, dirs)
+		if err != nil {
+			return err
+		}
 	default:
 		tagitems := ParseTags(args)
 		vt, err := VerifyTags(tagitems)
@@ -268,9 +284,15 @@ func Main(cmdLineArgs []string, opts appkit.Options) error {
 		if vt.Command.Str != "" {
 			switch vt.Command.Op {
 			case Add:
-				addTag(tagman, vt.Command.Str, vt.Dirs)
+				err = addTag(tagman, vt.Command.Str, vt.Dirs)
+				if err != nil {
+					return err
+				}
 			case Remove:
-				rmTag(tagman, vt.Command.Str, vt.Dirs)
+				err = rmTag(tagman, vt.Command.Str, vt.Dirs)
+				if err != nil {
+					return err
+				}
 			case None:
 				fallthrough
 			default:
