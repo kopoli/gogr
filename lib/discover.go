@@ -13,11 +13,12 @@ import (
 var filepathWalk = filepath.Walk
 
 // Discover directories beginning from root that contain the given file
-func Discover(opts appkit.Options, root string, file string) (dirs []string, err error) {
+func Discover(opts appkit.Options, root string, file string) ([]string, error) {
+	var dirs []string
 	maxDepth, err := strconv.ParseInt(opts.Get("discover-max-depth", "5"), 10, 0)
 	if err != nil {
-		err = fmt.Errorf("parsing maximum discovery depth failed: %s", err)
-		return
+		err = fmt.Errorf("parsing maximum discovery depth failed: %v", err)
+		return nil, err
 	}
 
 	dw := func(path string, info os.FileInfo, err error) error {
@@ -39,5 +40,5 @@ func Discover(opts appkit.Options, root string, file string) (dirs []string, err
 	}
 
 	err = filepathWalk(root, dw)
-	return
+	return dirs, err
 }
