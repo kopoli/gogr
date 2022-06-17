@@ -15,11 +15,11 @@ func TestTagManager(t *testing.T) {
 		Tags map[string][]string
 	}{
 		{"Empty", map[string][]string{}},
-		{"One tag", map[string][]string{"One": []string{}}},
-		{"One tag with dir", map[string][]string{"One": []string{"abc"}}},
+		{"One tag", map[string][]string{"One": {}}},
+		{"One tag with dir", map[string][]string{"One": {"abc"}}},
 		{"Two tags with dir", map[string][]string{
-			"One": []string{"abc"},
-			"Two": []string{"a", "b"},
+			"One": {"abc"},
+			"Two": {"a", "b"},
 		}},
 	}
 	for _, tt := range tests {
