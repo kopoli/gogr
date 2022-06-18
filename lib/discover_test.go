@@ -53,6 +53,7 @@ func allFromSlash(dirs []string) (ret []string) {
 
 func TestDiscover(t *testing.T) {
 	filepathWalk = mockWalk
+	defer func() { filepathWalk = filepath.Walk }()
 	opts := appkit.NewOptions()
 
 	opts.Set("discover-max-depth", "abc")
