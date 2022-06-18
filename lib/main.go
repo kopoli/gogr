@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -195,9 +196,16 @@ func Main(cmdLineArgs []string, opts appkit.Options) error {
 		fallthrough
 	case "tag list":
 		if len(args) == 0 {
-			for tag := range tagman.Tags {
-				fmt.Fprintln(stdout, tag)
+			if len(tagman.Tags) == 0 {
+				return nil
 			}
+
+			tagNames := []string{}
+			for tag := range tagman.Tags {
+				tagNames = append(tagNames, tag)
+			}
+			sort.Strings(tagNames)
+			fmt.Fprintf(stdout, "%s\n", strings.Join(tagNames, "\n"))
 		} else {
 			err := checkTags(args)
 			if err != nil {
