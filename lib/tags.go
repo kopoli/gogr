@@ -20,12 +20,13 @@ type TagManager struct {
 
 // NewTagManager creates a repository for tags, which it writes to the given
 // "configuration-file" from opts.
-func NewTagManager(opts appkit.Options) (ret TagManager) {
-	ret.ConfFile = opts.Get("configuration-file", "config.json")
-	ret.Tags = make(map[string][]string)
-	_ = ret.Load()
+func NewTagManager(opts appkit.Options) (*TagManager, error) {
+	ret := &TagManager{
+		ConfFile: opts.Get("configuration-file", "config.json"),
+		Tags:     make(map[string][]string),
+	}
 
-	return
+	return ret, ret.Load()
 }
 
 // Save saves the tags into a configuration file.

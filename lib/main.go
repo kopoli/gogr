@@ -21,7 +21,7 @@ func wrapErr(err error, message string) error {
 	return nil
 }
 
-func addTag(tagman TagManager, tag string, dirs []string) error {
+func addTag(tagman *TagManager, tag string, dirs []string) error {
 	if len(dirs) == 0 {
 		wd, err := os.Getwd()
 		err = wrapErr(err, "getting working directory failed")
@@ -38,7 +38,7 @@ func addTag(tagman TagManager, tag string, dirs []string) error {
 	return wrapErr(err, "saving configuration failed")
 }
 
-func rmTag(tagman TagManager, tag string, dirs []string) error {
+func rmTag(tagman *TagManager, tag string, dirs []string) error {
 	if !tagman.ValidateTag(tag) {
 		return fmt.Errorf("parsing tag string failed")
 	}
@@ -152,7 +152,10 @@ func Main(cmdLineArgs []string, opts appkit.Options) error {
 		return ErrHandled
 	}
 
-	tagman := NewTagManager(opts)
+	tagman, err := NewTagManager(opts)
+	if err != nil {
+		return fmt.Errorf("loading tags failed: %v", err)
+	}
 
 	parseDir := func(dirs []string) ([]string, error) {
 		ret := []string{}
