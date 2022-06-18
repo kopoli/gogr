@@ -2,7 +2,6 @@ package gogr
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"sync"
@@ -12,8 +11,8 @@ import (
 
 func RunCommand(directory string, program string, args ...string) (err error) {
 	dir := filepath.Base(directory)
-	pwo := NewPrefixedWriter(fmt.Sprintf("%s: ", dir), os.Stdout)
-	pwe := NewPrefixedWriter(fmt.Sprintf("%s(err): ", dir), os.Stderr)
+	pwo := NewPrefixedWriter(fmt.Sprintf("%s: ", dir), stdout)
+	pwe := NewPrefixedWriter(fmt.Sprintf("%s(err): ", dir), stderr)
 	cmd := exec.Command(program, args...)
 	cmd.Dir = directory
 	cmd.Stdout = pwo
