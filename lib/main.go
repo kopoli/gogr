@@ -74,6 +74,8 @@ func Main(cmdLineArgs []string, opts appkit.Options) error {
 	optVerbose := base.Flags.Bool("verbose", false, "Print verbose output")
 	base.Flags.BoolVar(optVerbose, "V", false, "Print verbose output")
 
+	optHidePrefix := base.Flags.Bool("hide-prefix", false, "Hide tag prefix in command output.")
+
 	optConfig := base.Flags.String("config", DefaultConfigFile(opts), "Configuration file")
 	base.Flags.StringVar(optConfig, "c", DefaultConfigFile(opts), "Configuration file")
 	optConcurrent := base.Flags.Bool("concurrent", false, "Run the commands concurrently")
@@ -134,6 +136,9 @@ func Main(cmdLineArgs []string, opts appkit.Options) error {
 	}
 	if *optLicenses {
 		return ErrLicenses
+	}
+	if *optHidePrefix {
+		opts.Set("hide-prefix", "t")
 	}
 
 	opts.Set("discover-max-depth", strconv.Itoa(*optDepth))

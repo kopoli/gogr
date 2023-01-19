@@ -9,10 +9,16 @@ import (
 	"github.com/kopoli/appkit"
 )
 
-func RunCommand(directory string, program string, args ...string) (err error) {
+func RunCommand(hidePrefix bool, directory string, program string, args ...string) (err error) {
 	dir := filepath.Base(directory)
-	pwo := NewPrefixedWriter(fmt.Sprintf("%s: ", dir), stdout)
-	pwe := NewPrefixedWriter(fmt.Sprintf("%s(err): ", dir), stderr)
+	var pfx, errPfx string
+	if !hidePrefix {
+		pfx = fmt.Sprintf("%s: ", dir)
+		errPfx = fmt.Sprintf("%s(err): ", dir)
+	}
+	pwo := NewPrefixedWriter(pfx, stdout)
+	pwe := NewPrefixedWriter(errPfx, stderr)
+
 	cmd := exec.Command(program, args...)
 	cmd.Dir = directory
 	cmd.Stdout = pwo
@@ -29,6 +35,7 @@ func RunCommand(directory string, program string, args ...string) (err error) {
 
 func RunCommands(opts appkit.Options, dirs []string, args []string) (err error) {
 	concurrent := opts.IsSet("concurrent")
+	hidePrefix := opts.IsSet("hide-prefix")
 
 	if concurrent {
 		wg := sync.WaitGroup{}
@@ -36,13 +43,13 @@ func RunCommands(opts appkit.Options, dirs []string, args []string) (err error) 
 			wg.Add(1)
 			go func(dir string) {
 				defer wg.Done()
-				_ = RunCommand(dir, args[0], args[1:]...)
+				_ = RunCommand(hidePrefix, dir, args[0], args[1:]...)
 			}(dir)
 		}
 		wg.Wait()
 	} else {
 		for _, dir := range dirs {
-			_ = RunCommand(dir, args[0], args[1:]...)
+			_ = RunCommand(hidePrefix, dir, args[0], args[1:]...)
 		}
 	}
 	return
