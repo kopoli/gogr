@@ -3,7 +3,6 @@ package gogr
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"regexp"
@@ -195,7 +194,7 @@ func Test_Main(t *testing.T) {
 			var err error
 			defer func() { _ = os.Remove(confFile) }()
 			if tt.tagsJSON != "" {
-				err = ioutil.WriteFile(confFile, []byte(tt.tagsJSON), 0666)
+				err = os.WriteFile(confFile, []byte(tt.tagsJSON), 0666)
 				if err != nil {
 					t.Errorf("Could not write conffile: %v", err)
 				}
@@ -213,7 +212,7 @@ func Test_Main(t *testing.T) {
 			err = Main(tt.args, opts)
 
 			// Ignore error, as the file might not be created
-			b, _ := ioutil.ReadFile(confFile)
+			b, _ := os.ReadFile(confFile)
 
 			out := buf.String()
 			confData := string(b)

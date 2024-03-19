@@ -3,7 +3,6 @@ package gogr
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -39,13 +38,13 @@ func (t *TagManager) Save() (err error) {
 	if err != nil {
 		return
 	}
-	err = ioutil.WriteFile(t.ConfFile, b, 0666)
+	err = os.WriteFile(t.ConfFile, b, 0666)
 	return
 }
 
 // Load loads the tags from a configuration file.
 func (t *TagManager) Load() (err error) {
-	b, err := ioutil.ReadFile(t.ConfFile)
+	b, err := os.ReadFile(t.ConfFile)
 	if err != nil {
 		return
 	}
