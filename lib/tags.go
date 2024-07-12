@@ -25,6 +25,14 @@ func NewTagManager(opts appkit.Options) (*TagManager, error) {
 		Tags:     make(map[string][]string),
 	}
 
+	// If the path does not exist, create it
+	if _, err := os.Stat(filepath.Dir(ret.ConfFile)); os.IsNotExist(err) {
+		err = ret.Save()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return ret, ret.Load()
 }
 
